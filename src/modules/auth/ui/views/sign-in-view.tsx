@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2Icon, AlertCircleIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -19,7 +21,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Spinner } from '@/components/ui/kibo-ui/spinner';
 import { InputPassword } from '@/components/input-password';
 
 const formSchema = z.object({
@@ -27,15 +28,13 @@ const formSchema = z.object({
   password: z.string().min(8)
 });
 
-export function SignInForm({
+export function SignInView({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const { data: session, isPending: isLoadingSession } =
-    authClient.useSession();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,14 +44,14 @@ export function SignInForm({
     }
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await authClient.signIn.email(
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    authClient.signIn.email(
       {
         email: values.email,
         password: values.password
       },
       {
-        onRequest: (request) => {
+        onRequest: () => {
           setError(null);
           setIsLoading(true);
         },
@@ -60,6 +59,7 @@ export function SignInForm({
           setIsLoading(false);
           form.reset();
           setError(null);
+          router.push('/');
         },
         onError: ({ error }) => {
           setIsLoading(false);
@@ -69,21 +69,6 @@ export function SignInForm({
     );
   };
 
-  if (isLoadingSession) {
-    return <Spinner className='mx-auto' />;
-  }
-
-  if (session) {
-    return (
-      <div className='flex flex-col gap-6'>
-        <p>Signed in as {session.user?.name}</p>
-        <Button className='cursor-pointer' onClick={() => authClient.signOut()}>
-          Sign out
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className='overflow-hidden p-0'>
@@ -92,9 +77,9 @@ export function SignInForm({
             <form className='p-6 md:p-8' onSubmit={form.handleSubmit(onSubmit)}>
               <div className='flex flex-col gap-6'>
                 <div className='flex flex-col items-center text-center'>
-                  <h1 className='text-2xl font-bold'>Login to your account</h1>
+                  <h1 className='text-2xl font-bold'>Welcome back!</h1>
                   <p className='text-muted-foreground text-base text-balance'>
-                    Login to your Acme Inc account
+                    Login to your account
                   </p>
                 </div>
                 <div className='grid gap-3'>
@@ -137,10 +122,12 @@ export function SignInForm({
                     )}
                   />
                 </div>
-                {error && (
-                  <Alert variant='destructive'>
+                {!!error && (
+                  <Alert
+                    variant='destructive'
+                    className='bg-destructive/10 border-none'
+                  >
                     <AlertCircleIcon />
-                    <AlertTitle>Error</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
@@ -188,19 +175,19 @@ export function SignInForm({
                 </div>
                 <div className='text-center text-sm'>
                   Don&apos;t have an account?{' '}
-                  <a href='#' className='underline underline-offset-4'>
+                  <Link
+                    href='/sign-up'
+                    className='underline underline-offset-4'
+                  >
                     Sign up
-                  </a>
+                  </Link>
                 </div>
               </div>
             </form>
           </Form>
-          <div className='bg-muted relative hidden md:block'>
-            <img
-              src='https://ui.shadcn.com/placeholder.svg'
-              alt='Image'
-              className='absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale'
-            />
+          <div className='relative hidden flex-col items-center justify-center gap-y-4 bg-radial from-green-700 to-green-900 md:flex'>
+            <img src='/logo.svg' alt='Logo' className='size-[92px]' />
+            <p className='text-2xl font-semibold text-white'>Meet.AI</p>
           </div>
         </CardContent>
       </Card>

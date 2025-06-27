@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2Icon, AlertCircleIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -19,7 +21,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Spinner } from '@/components/ui/kibo-ui/spinner';
 import { InputPassword } from '@/components/input-password';
 
 const formSchema = z
@@ -34,15 +35,13 @@ const formSchema = z
     message: "Passwords don't match"
   });
 
-export function SignUpForm({
+export function SignUpView({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const { data: session, isPending: isLoadingSession } =
-    authClient.useSession();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,8 +53,8 @@ export function SignUpForm({
     }
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    await authClient.signUp.email(
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    authClient.signUp.email(
       {
         name: values.name,
         email: values.email,
@@ -63,7 +62,7 @@ export function SignUpForm({
         callbackURL: '/dashboard'
       },
       {
-        onRequest: (request) => {
+        onRequest: () => {
           setError(null);
           setIsLoading(true);
         },
@@ -71,27 +70,13 @@ export function SignUpForm({
           setIsLoading(false);
           form.reset();
           setError(null);
+          router.push('/');
         },
         onError: ({ error }) => {
           setIsLoading(false);
           setError(error.message);
         }
       }
-    );
-  }
-
-  if (isLoadingSession) {
-    return <Spinner className='mx-auto' />;
-  }
-
-  if (session) {
-    return (
-      <div className='flex flex-col gap-6'>
-        <p>Signed in as {session.user?.name}</p>
-        <Button className='cursor-pointer' onClick={() => authClient.signOut()}>
-          Sign out
-        </Button>
-      </div>
     );
   }
 
@@ -103,9 +88,9 @@ export function SignUpForm({
             <form className='p-6 md:p-8' onSubmit={form.handleSubmit(onSubmit)}>
               <div className='flex flex-col gap-6'>
                 <div className='flex flex-col items-center text-center'>
-                  <h1 className='text-2xl font-bold'>Create an account</h1>
+                  <h1 className='text-2xl font-bold'>Let&apos;s get started</h1>
                   <p className='text-muted-foreground text-base text-balance'>
-                    Create your Acme Inc account
+                    Create your account
                   </p>
                 </div>
                 <div className='grid gap-3'>
@@ -233,20 +218,20 @@ export function SignUpForm({
                   </Button>
                 </div>
                 <div className='text-center text-sm'>
-                  Don&apos;t have an account?{' '}
-                  <a href='#' className='underline underline-offset-4'>
-                    Sign up
-                  </a>
+                  Already have an account?{' '}
+                  <Link
+                    href='/sign-in'
+                    className='underline underline-offset-4'
+                  >
+                    Sign in
+                  </Link>
                 </div>
               </div>
             </form>
           </Form>
-          <div className='bg-muted relative hidden md:block'>
-            <img
-              src='https://ui.shadcn.com/placeholder.svg'
-              alt='Image'
-              className='absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale'
-            />
+          <div className='relative hidden flex-col items-center justify-center gap-y-4 bg-radial from-green-700 to-green-900 md:flex'>
+            <img src='/logo.svg' alt='Logo' className='size-[92px]' />
+            <p className='text-2xl font-semibold text-white'>Meet.AI</p>
           </div>
         </CardContent>
       </Card>
