@@ -5,7 +5,7 @@ export default function Loading() {
     <div className='bg-muted flex min-h-svh flex-col items-center justify-center gap-4 p-6 md:p-10'>
       <Spinner className='mx-auto' />
       <span className='text-muted-foreground font-mono text-xs'>
-        Loading in auth layout...
+        Loading...
       </span>
     </div>
   );
