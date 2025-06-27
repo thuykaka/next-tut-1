@@ -27,6 +27,13 @@ const formSchema = z.object({
   password: z.string().min(8)
 });
 
+/**
+ * Renders a user login form with email and password fields, validation, and authentication handling.
+ *
+ * Displays a loading spinner while session data is being fetched. If a user is already signed in, shows their name and a sign-out button. Otherwise, presents a login form with validation, error messaging, and alternative login options (Apple, Google, Meta). Includes a link to sign up and a disclaimer about terms of service and privacy policy.
+ *
+ * @param className - Optional additional CSS class names for the root container
+ */
 export function LoginForm({
   className,
   ...props

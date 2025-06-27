@@ -34,6 +34,11 @@ const formSchema = z
     message: "Passwords don't match"
   });
 
+/**
+ * Renders a user registration form with validation, authentication, and session handling.
+ *
+ * Displays a sign-up form for new users, including fields for name, email, password, and password confirmation with validation and error feedback. Handles form submission by creating a new account via the authentication client and manages loading and error states. If a user session exists, shows the signed-in user's information and a sign-out button. Also provides alternative sign-in options and responsive layout with decorative imagery.
+ */
 export function SignInForm({
   className,
   ...props
