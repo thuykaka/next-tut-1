@@ -22,17 +22,10 @@ import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/kibo-ui/spinner';
 import { InputPassword } from '@/components/input-password';
 
-const formSchema = z
-  .object({
-    name: z.string().min(3),
-    email: z.string().email(),
-    password: z.string().min(8),
-    confirmPassword: z.string()
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ['confirmPassword'],
-    message: "Passwords don't match"
-  });
+const formSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8)
+});
 
 export function SignInForm({
   className,
@@ -47,20 +40,16 @@ export function SignInForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
       email: '',
-      password: '',
-      confirmPassword: ''
+      password: ''
     }
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { data, error } = await authClient.signUp.email(
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    await authClient.signIn.email(
       {
-        name: values.name,
         email: values.email,
-        password: values.password,
-        callbackURL: '/dashboard'
+        password: values.password
       },
       {
         onRequest: (request) => {
@@ -78,15 +67,7 @@ export function SignInForm({
         }
       }
     );
-
-    if (error) {
-      console.log(error);
-    }
-
-    if (data) {
-      console.log(data);
-    }
-  }
+  };
 
   if (isLoadingSession) {
     return <Spinner className='mx-auto' />;
@@ -111,25 +92,10 @@ export function SignInForm({
             <form className='p-6 md:p-8' onSubmit={form.handleSubmit(onSubmit)}>
               <div className='flex flex-col gap-6'>
                 <div className='flex flex-col items-center text-center'>
-                  <h1 className='text-2xl font-bold'>Create an account</h1>
+                  <h1 className='text-2xl font-bold'>Login to your account</h1>
                   <p className='text-muted-foreground text-base text-balance'>
-                    Create your Acme Inc account
+                    Login to your Acme Inc account
                   </p>
-                </div>
-                <div className='grid gap-3'>
-                  <FormField
-                    control={form.control}
-                    name='name'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder='John Doe' required />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
                 <div className='grid gap-3'>
                   <FormField
@@ -171,26 +137,6 @@ export function SignInForm({
                     )}
                   />
                 </div>
-                <div className='grid gap-3'>
-                  <FormField
-                    control={form.control}
-                    name='confirmPassword'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
-                        <FormControl>
-                          <InputPassword
-                            {...field}
-                            disabled={isLoading}
-                            required
-                            placeholder='********'
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
                 {error && (
                   <Alert variant='destructive'>
                     <AlertCircleIcon />
@@ -204,7 +150,7 @@ export function SignInForm({
                   disabled={isLoading}
                 >
                   {isLoading && <Loader2Icon className='animate-spin' />}
-                  Create account
+                  Login
                 </Button>
                 <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
                   <span className='bg-card text-muted-foreground relative z-10 px-2'>
