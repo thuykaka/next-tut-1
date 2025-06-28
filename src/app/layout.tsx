@@ -1,17 +1,8 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 import NextTopLoader from 'nextjs-toploader';
+import { fontVariables } from '@/lib/font';
+import { cn } from '@/lib/utils';
 import './globals.css';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin']
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin']
-});
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -26,9 +17,12 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={cn(
+          'overflow-hidden overscroll-none font-sans antialiased',
+          fontVariables
+        )}
       >
-        <NextTopLoader showSpinner={false} color='var(--color-green-900)' />
+        <NextTopLoader showSpinner={false} color='var(--primary)' />
         {children}
       </body>
     </html>
