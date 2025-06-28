@@ -58,7 +58,7 @@ export function SignUpView({
       {
         name: values.name,
         email: values.email,
-        password: values.password,
+        password: values.password
       },
       {
         onRequest: () => {
@@ -81,7 +81,7 @@ export function SignUpView({
 
   const onSocialSignIn = (provider: 'github' | 'google' | 'facebook') => {
     authClient.signIn.social(
-      { provider, callbackURL: '/' },
+      { provider },
       {
         onRequest: () => {
           setError(null);
@@ -90,6 +90,7 @@ export function SignUpView({
         onSuccess: () => {
           setIsLoading(false);
           setError(null);
+          router.push('/');
         },
         onError({ error }) {
           setIsLoading(false);
@@ -195,7 +196,7 @@ export function SignUpView({
                 )}
                 <Button
                   type='submit'
-                  className='w-full cursor-pointer bg-green-700 text-white hover:bg-green-900'
+                  className='cursor-pointertext-white w-full'
                   disabled={isLoading}
                 >
                   {isLoading && <Loader2Icon className='animate-spin' />}
@@ -257,7 +258,7 @@ export function SignUpView({
               </div>
             </form>
           </Form>
-          <div className='relative hidden flex-col items-center justify-center gap-y-4 bg-radial from-green-700 to-green-900 md:flex'>
+          <div className='from-sidebar-accent to-sidebar relative hidden flex-col items-center justify-center gap-y-4 bg-radial md:flex'>
             <img src='/logo.svg' alt='Logo' className='size-[92px]' />
             <p className='text-2xl font-semibold text-white'>Meet.AI</p>
           </div>

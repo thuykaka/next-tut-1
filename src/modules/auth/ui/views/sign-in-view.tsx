@@ -48,7 +48,7 @@ export function SignInView({
     authClient.signIn.email(
       {
         email: values.email,
-        password: values.password,
+        password: values.password
       },
       {
         onRequest: () => {
@@ -155,7 +155,7 @@ export function SignInView({
                 )}
                 <Button
                   type='submit'
-                  className='w-full bg-green-700 text-white hover:bg-green-900'
+                  className='w-full text-white'
                   disabled={isLoading}
                 >
                   {isLoading && <Loader2Icon className='animate-spin' />}
@@ -220,7 +220,7 @@ export function SignInView({
               </div>
             </form>
           </Form>
-          <div className='relative hidden flex-col items-center justify-center gap-y-4 bg-radial from-green-700 to-green-900 md:flex'>
+          <div className='from-sidebar-accent to-sidebar relative hidden flex-col items-center justify-center gap-y-4 bg-radial md:flex'>
             <img src='/logo.svg' alt='Logo' className='size-[92px]' />
             <p className='text-2xl font-semibold text-white'>Meet.AI</p>
           </div>

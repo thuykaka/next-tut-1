@@ -42,6 +42,7 @@
     "^@/constants/(.*)$",
     "^@/context/(.*)$",
     "^@/hooks/(.*)$",
+    "^@/modules/(.*)$",
     "^@/components/layouts/(.*)$",
     "^@/components/ui/(.*)$",
     "^@/components/errors/(.*)$",
