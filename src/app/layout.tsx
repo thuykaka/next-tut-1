@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { TRPCReactProvider } from '@/trpc/client';
 import NextTopLoader from 'nextjs-toploader';
 import { fontVariables } from '@/lib/font';
 import { cn } from '@/lib/utils';
@@ -23,7 +24,7 @@ export default function RootLayout({
         )}
       >
         <NextTopLoader showSpinner={false} color='var(--primary)' />
-        {children}
+        <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
   );
