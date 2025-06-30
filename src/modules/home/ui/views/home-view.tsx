@@ -1,16 +1,11 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { useTRPC } from '@/trpc/client';
 
-export function HomeView({ session }: { session: any }) {
-  return (
-    <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
-      <div className='grid auto-rows-min gap-4 md:grid-cols-3'>
-        <div className='bg-muted/50 aspect-video rounded-xl' />
-        <div className='bg-muted/50 aspect-video rounded-xl' />
-        <div className='bg-muted/50 aspect-video rounded-xl' />
-      </div>
-      <div className='bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min' />
-    </div>
-  );
+export function HomeView() {
+  const trpc = useTRPC();
+  const { data } = useQuery(trpc.hello.queryOptions({ text: 'thuykaka' }));
+
+  return <div>{data?.greeting}</div>;
 }

@@ -12,5 +12,5 @@ export default async function Page() {
     return redirect('/sign-in');
   }
 
-  return <HomeView session={session} />;
+  return <HomeView />;
 }
