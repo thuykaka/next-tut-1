@@ -54,7 +54,7 @@ export default function KBar({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   return (
-    <KBarProvider actions={actions}>
+    <KBarProvider actions={actions} >
       <KBarComponent>{children}</KBarComponent>
     </KBarProvider>
   );
@@ -65,7 +65,7 @@ const KBarComponent = ({ children }: { children: React.ReactNode }) => {
     <>
       <KBarPortal>
         <KBarPositioner className='bg-background/80 fixed inset-0 z-99999 p-0! backdrop-blur-sm'>
-          <KBarAnimator className='bg-card text-card-foreground relative mt-64! w-full max-w-[600px] -translate-y-12! overflow-hidden rounded-lg border shadow-lg'>
+          <KBarAnimator className='bg-card text-card-foreground relative mt-64! w-full max-w-[400px] -translate-y-12! overflow-hidden rounded-lg border shadow-lg lg:max-w-[600px]'>
             <div className='bg-card border-border sticky top-0 z-10 border-b'>
               <KBarSearch className='bg-card w-full border-none px-6 py-4 text-base outline-hidden focus:ring-0 focus:ring-offset-0 focus:outline-hidden' />
             </div>
