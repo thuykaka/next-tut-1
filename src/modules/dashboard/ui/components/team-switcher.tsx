@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { navTeamConfig } from '@/config/nav';
 import { ChevronsUpDown, Plus } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,17 +21,9 @@ import {
   useSidebar
 } from '@/components/ui/sidebar';
 
-export function TeamSwitcher({
-  teams
-}: {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-    plan: string;
-  }[];
-}) {
+export function TeamSwitcher() {
   const { isMobile } = useSidebar();
-  const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+  const [activeTeam, setActiveTeam] = React.useState(navTeamConfig[0]);
 
   if (!activeTeam) {
     return null;
@@ -58,7 +51,7 @@ export function TeamSwitcher({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className='w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg'
+            className='w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg'
             align='start'
             side={isMobile ? 'bottom' : 'right'}
             sideOffset={4}
@@ -66,7 +59,7 @@ export function TeamSwitcher({
             <DropdownMenuLabel className='text-muted-foreground text-xs'>
               Teams
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {navTeamConfig.map((team, index) => (
               <DropdownMenuItem
                 key={team.name}
                 onClick={() => setActiveTeam(team)}

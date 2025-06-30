@@ -1,6 +1,7 @@
 'use client';
 
-import { type LucideIcon } from 'lucide-react';
+import { navPlansConfig } from '@/config/nav';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
@@ -11,36 +12,31 @@ import {
   SidebarMenuItem
 } from '@/components/ui/sidebar';
 
-export function NavPlans({
-  plans
-}: {
-  plans: {
-    name: string;
-    url: string;
-    icon: LucideIcon;
-  }[];
-}) {
+export function NavPlans() {
   const pathname = usePathname();
 
   return (
     <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
       <SidebarGroupLabel>Plans</SidebarGroupLabel>
       <SidebarMenu>
-        {plans.map((item) => (
-          <SidebarMenuItem key={item.name}>
+        {navPlansConfig.map((navItem) => (
+          <SidebarMenuItem key={navItem.title}>
             <SidebarMenuButton
               asChild
               className={cn(
                 'from-sidebar-accent via-sidebar/50 to-sidebar/50 h-10 border border-transparent from-5% via-30% hover:border-[#5d6b68]/10 hover:bg-linear-to-r/oklch',
-                pathname === item.url &&
+                pathname === navItem.url &&
                   'border-[#5d6b68]/10 bg-linear-to-r/oklch'
               )}
-              isActive={pathname === item.url}
+              isActive={pathname === navItem.url}
             >
-              <a href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </a>
+              <Link
+                href={navItem.url}
+                className='flex w-full items-center gap-2'
+              >
+                <navItem.icon />
+                <span>{navItem.title}</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}

@@ -1,6 +1,7 @@
 'use client';
 
-import { ChevronRight, type LucideIcon } from 'lucide-react';
+import { navMainConfig } from '@/config/nav';
+import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -20,57 +21,47 @@ import {
   SidebarMenuSubItem
 } from '@/components/ui/sidebar';
 
-export function NavMain({
-  items
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
-    items?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
-}) {
+export function NavMain() {
   const pathname = usePathname();
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Features</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
+        {navMainConfig.map((navItem) => (
           <Collapsible
-            key={item.title}
+            key={navItem.title}
             asChild
-            defaultOpen={item.isActive}
+            defaultOpen={navItem.isActive}
             className='group/collapsible'
           >
             <SidebarMenuItem>
-              {item.items && item.items.length > 0 ? (
+              {navItem.items && navItem.items.length > 0 ? (
                 <>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
-                      tooltip={item.title}
+                      tooltip={navItem.title}
                       className={cn(
                         'from-sidebar-accent via-sidebar/50 to-sidebar/50 h-10 border border-transparent from-5% via-30% hover:border-[#5d6b68]/10 hover:bg-linear-to-r/oklch',
-                        pathname === item.url &&
+                        pathname === navItem.url &&
                           'border-[#5d6b68]/10 bg-linear-to-r/oklch'
                       )}
-                      isActive={pathname === item.url}
+                      isActive={pathname === navItem.url}
                     >
-                      {item.icon && <item.icon />}
-                      <span>{item.title}</span>
+                      {navItem.icon && <navItem.icon />}
+                      <span>{navItem.title}</span>
                       <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
+                      {navItem.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <Link href={subItem.url}>
+                            <Link
+                              href={subItem.url}
+                              className='flex w-full items-center gap-2'
+                            >
                               <span>{subItem.title}</span>
                             </Link>
                           </SidebarMenuSubButton>
@@ -81,16 +72,23 @@ export function NavMain({
                 </>
               ) : (
                 <SidebarMenuButton
-                  tooltip={item.title}
+                  tooltip={navItem.title}
                   className={cn(
                     'from-sidebar-accent via-sidebar/50 to-sidebar/50 h-10 border border-transparent from-5% via-30% hover:border-[#5d6b68]/10 hover:bg-linear-to-r/oklch',
-                    pathname === item.url &&
+                    pathname === navItem.url &&
                       'border-[#5d6b68]/10 bg-linear-to-r/oklch'
                   )}
-                  isActive={pathname === item.url}
+                  isActive={pathname === navItem.url}
                 >
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+                  <Link
+                    href={navItem.url}
+                    className='flex w-full items-center gap-2'
+                  >
+                    {navItem.icon && (
+                      <navItem.icon className='size-4 shrink-0' />
+                    )}
+                    <span>{navItem.title}</span>
+                  </Link>
                 </SidebarMenuButton>
               )}
             </SidebarMenuItem>
