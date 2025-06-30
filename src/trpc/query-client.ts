@@ -7,7 +7,6 @@ export function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        retry: false, // không retry nếu lỗi
         staleTime: 30 * 1000 // sẽ refetch nếu hết thời gian này, đặt về 0 để không cache
       },
       dehydrate: {
