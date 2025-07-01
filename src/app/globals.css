@@ -189,13 +189,11 @@
 
   .sidebar-scrollbar::-webkit-scrollbar-track {
     background-color: var(--sidebar);
-    border-radius: 4px;
   }
 
   .sidebar-scrollbar::-webkit-scrollbar-thumb {
     background-color: var(--sidebar-foreground);
-    border-radius: 6px;
-    border: 1px solid var(--sidebar-border);
+    border-radius: 4px;
   }
 
   /* Firefox scrollbar */
