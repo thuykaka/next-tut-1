@@ -8,10 +8,10 @@ type Props = {
 
 export function ErrorState({ title, description }: Props) {
   return (
-    <div className='flex h-screen flex-col items-center justify-center gap-4'>
+    <div className='flex flex-col items-center justify-center gap-4'>
       <Alert
         variant='destructive'
-        className='flex flex-col items-center border-none'
+        className='flex min-h-[400px] flex-col items-center justify-center border-none'
       >
         <AlertCircleIcon className='mb-1' />
         <AlertTitle className='text-lg font-medium'>{title}</AlertTitle>

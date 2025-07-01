@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTRPC } from '@/trpc/client';
+import { Loader2Icon } from 'lucide-react';
 import { toast } from 'sonner';
 import { agentInsertSchema } from '@/modules/agents/schema';
 import type { AgentGetOne } from '@/modules/agents/types';
@@ -127,6 +128,7 @@ export default function AgentForm({
             </Button>
           )}
           <Button type='submit' disabled={isPending}>
+            {isPending && <Loader2Icon className='animate-spin' />}
             {isEdit ? 'Update' : 'Create'}
           </Button>
         </div>
