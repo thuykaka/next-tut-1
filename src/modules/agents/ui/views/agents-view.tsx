@@ -2,9 +2,11 @@
 
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useTRPC } from '@/trpc/client';
+import { columns } from '@/modules/agents/ui/components/columns';
+import { DataTable } from '@/modules/agents/ui/components/data-table';
+import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { LoadingState } from '@/components/loading-state';
-import { ResponsiveDialog } from '@/components/responsive-dialog';
 
 export function AgentsView() {
   const trpc = useTRPC();
@@ -12,15 +14,13 @@ export function AgentsView() {
 
   return (
     <div>
-      <ResponsiveDialog
-        title='Agents'
-        description='Agents are the entities that can be used to create workflows.'
-        open={false}
-        onOpenChange={() => {}}
-      >
-        <div>Agents</div>
-      </ResponsiveDialog>
-      {JSON.stringify(data, null, 2)}
+      <DataTable columns={columns} data={data} />
+      {data.length === 0 && (
+        <EmptyState
+          title='Create your first agent'
+          description='Agents are the core of your AI-powered meetings. They help you manage your meetings and ensure that you are always on top of your game.'
+        />
+      )}
     </div>
   );
 }
