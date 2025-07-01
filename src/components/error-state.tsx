@@ -13,7 +13,7 @@ export function ErrorState({ title, description }: Props) {
         variant='destructive'
         className='flex flex-col items-center border-none'
       >
-        <AlertCircleIcon className='mb-4' />
+        <AlertCircleIcon className='mb-1' />
         <AlertTitle className='text-lg font-medium'>{title}</AlertTitle>
         <AlertDescription className='text-muted-foreground text-sm'>
           {description}

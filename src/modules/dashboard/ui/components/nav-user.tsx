@@ -11,7 +11,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,19 +28,18 @@ import {
   useSidebar
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
+import { GeneratedAvatar } from '@/components/generated-avatar';
 
 function UserAvatar({ image, name }: { image?: string | null; name: string }) {
-  return (
-    <Avatar className='h-8 w-8 rounded-lg'>
-      <AvatarImage
-        src={image || 'https://ui.shadcn.com/avatars/shadcn.jpg'}
-        alt={name}
-      />
-      <AvatarFallback className='rounded-lg'>
-        {name.charAt(0).toUpperCase()}
-      </AvatarFallback>
-    </Avatar>
-  );
+  if (image) {
+    return (
+      <Avatar className='h-8 w-8 rounded-lg'>
+        <AvatarImage src={image} alt={name} />
+      </Avatar>
+    );
+  }
+
+  return <GeneratedAvatar seed={name} variant='initials' />;
 }
 
 function UserSkeleton() {
