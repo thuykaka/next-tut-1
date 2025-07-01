@@ -47,7 +47,9 @@ export default function AgentForm({
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message);
+        toast.error(error.message, {
+          description: 'Please try again.'
+        });
       }
     })
   );

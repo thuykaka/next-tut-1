@@ -21,7 +21,7 @@ export function DashboardSidebar({
       <SidebarHeader>
         <TeamSwitcher />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className='sidebar-scrollbar'>
         <NavMain />
         <NavPlans />
       </SidebarContent>
