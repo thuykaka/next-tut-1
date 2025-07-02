@@ -6,7 +6,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { getQueryClient, trpc } from '@/trpc/server';
 import { auth } from '@/lib/auth';
 import { loadAgentsSearchParams } from '@/modules/agents/params';
-import AgentsListHeader from '@/modules/agents/ui/components/agent-list-header';
+import AgentsListHeader from '@/modules/agents/ui/components/agents-list-header';
 import {
   AgentsView,
   AgentsViewError,
