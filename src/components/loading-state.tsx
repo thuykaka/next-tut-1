@@ -5,7 +5,11 @@ type Props = {
   description?: string;
 } & SpinnerProps;
 
-export function LoadingState({ title, description, ...spinnerProps }: Props) {
+export function LoadingState({
+  title,
+  description = 'This may take a few seconds...',
+  ...spinnerProps
+}: Props) {
   return (
     <div className='flex min-h-[400px] flex-col items-center justify-center gap-4'>
       <Spinner {...spinnerProps} className='text-primary' />

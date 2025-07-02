@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 import {
   eq,
   sql,
@@ -23,14 +24,27 @@ import { agentInsertSchema, agentSelectSchema } from '@/modules/agents/schema';
 export const agentsRouter = createTRPCRouter({
   getOne: protectedProcedure
     .input(agentSelectSchema)
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
+      const whereClause = and(
+        eq(agents.id, input.id),
+        eq(agents.userId, ctx.auth.user.id)
+      );
+
       const [data] = await db
         .select({
           ...getTableColumns(agents),
           meetingCount: sql<number>`5`
         })
         .from(agents)
-        .where(eq(agents.id, input.id));
+        .where(whereClause);
+
+      if (!data) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Agent not found'
+        });
+      }
+
       return data;
     }),
   getMany: protectedProcedure
@@ -48,7 +62,7 @@ export const agentsRouter = createTRPCRouter({
         .optional()
     )
     .query(async ({ ctx, input }) => {
-      const where = and(
+      const whereClause = and(
         eq(agents.userId, ctx.auth.user.id),
         input?.search
           ? or(
@@ -58,7 +72,7 @@ export const agentsRouter = createTRPCRouter({
           : undefined
       );
 
-      const orderBy = [desc(agents.createdAt), desc(agents.id)];
+      const orderByClause = [desc(agents.createdAt), desc(agents.id)];
 
       const pagination = {
         limit: input?.pageSize ?? DEFAULT_PAGE_SIZE,
@@ -73,15 +87,15 @@ export const agentsRouter = createTRPCRouter({
           meetingCount: sql<number>`5`
         })
         .from(agents)
-        .where(where)
-        .orderBy(...orderBy)
+        .where(whereClause)
+        .orderBy(...orderByClause)
         .limit(pagination.limit)
         .offset(pagination.offset);
 
       const [total] = await db
         .select({ count: count() })
         .from(agents)
-        .where(where);
+        .where(whereClause);
 
       const totalPages = Math.ceil(total.count / pagination.limit);
 

@@ -1,8 +1,10 @@
 'use client';
 
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { useTRPC } from '@/trpc/client';
 import { useAgentsFilter } from '@/modules/agents/hooks/use-agents-filter';
+import { type AgentGetMany } from '@/modules/agents/types';
 import { columns } from '@/modules/agents/ui/components/columns';
 import { DataTable } from '@/modules/agents/ui/components/data-table';
 import { DataTablePagination } from '@/modules/agents/ui/components/data-table-pagination';
@@ -11,17 +13,25 @@ import { ErrorState } from '@/components/error-state';
 import { LoadingState } from '@/components/loading-state';
 
 export function AgentsView() {
+  const router = useRouter();
   const [filters, setFilters] = useAgentsFilter();
 
   const trpc = useTRPC();
-
   const { data } = useSuspenseQuery(
     trpc.agents.getMany.queryOptions({ ...filters })
   );
 
+  const handleRowClick = (row: AgentGetMany['data'][number]) => {
+    router.push(`/agents/${row.id}`);
+  };
+
   return (
     <div>
-      <DataTable columns={columns} data={data.data} />
+      <DataTable
+        columns={columns}
+        data={data.data}
+        onRowClick={handleRowClick}
+      />
       <DataTablePagination
         page={filters.page}
         totalPages={data.totalPages}
@@ -38,19 +48,9 @@ export function AgentsView() {
 }
 
 export function AgentsViewLoading() {
-  return (
-    <LoadingState
-      title='Loading Agents'
-      description='This may take a few seconds...'
-    />
-  );
+  return <LoadingState title='Loading Agents' />;
 }
 
 export function AgentsViewError() {
-  return (
-    <ErrorState
-      title='Failed to load agents'
-      description='Something went wrong. Please try again later.'
-    />
-  );
+  return <ErrorState title='Failed to load agents' />;
 }
