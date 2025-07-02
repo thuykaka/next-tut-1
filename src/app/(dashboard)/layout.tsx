@@ -14,7 +14,7 @@ export default function DashboardLayout({
         <DashboardSidebar />
         <SidebarInset>
           <Header />
-          <div className='flex flex-1 flex-col gap-4 bg-muted p-4'>
+          <div className='bg-muted flex flex-1 flex-col gap-4 p-4'>
             {children}
           </div>
         </SidebarInset>
