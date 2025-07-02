@@ -18,6 +18,14 @@ type AgentDetailPageProps = {
 export default async function AgentDetailPage({
   params
 }: AgentDetailPageProps) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  if (!session) {
+    return redirect('/sign-in');
+  }
+
   const { agentId } = await params;
 
   const queryClient = getQueryClient();
