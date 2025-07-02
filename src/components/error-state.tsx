@@ -6,7 +6,10 @@ type Props = {
   description?: string;
 };
 
-export function ErrorState({ title, description }: Props) {
+export function ErrorState({
+  title,
+  description = 'Something went wrong. Please try again later.'
+}: Props) {
   return (
     <div className='flex flex-col items-center justify-center gap-4'>
       <Alert

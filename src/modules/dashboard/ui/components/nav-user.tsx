@@ -73,6 +73,8 @@ export function NavUser() {
     });
   };
 
+  console.log('render nav user');
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
