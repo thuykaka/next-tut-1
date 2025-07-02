@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { ErrorBoundary } from 'react-error-boundary';
 import { getQueryClient, trpc } from '@/trpc/server';
 import { auth } from '@/lib/auth';
+import MeetingsListHeader from '@/modules/meetings/ui/components/meetings-list-header';
 import {
   MeetingsView,
   MeetingsViewLoading,
@@ -25,6 +26,7 @@ export default async function MeetingsPage() {
 
   return (
     <>
+      <MeetingsListHeader />
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<MeetingsViewLoading />}>
           <ErrorBoundary fallback={<MeetingsViewError />}>

@@ -10,7 +10,11 @@ import {
 import { db } from '@/db';
 import { meetings } from '@/db/schema';
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
-import { meetingSelectSchema } from '@/modules/meetings/schema';
+import {
+  meetingInsertSchema,
+  meetingSelectSchema,
+  meetingUpdateSchema
+} from '@/modules/meetings/schema';
 
 export const meetingsRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -31,7 +35,7 @@ export const meetingsRouter = createTRPCRouter({
       if (!data) {
         throw new TRPCError({
           code: 'NOT_FOUND',
-          message: 'Agent not found'
+          message: 'Meeting not found'
         });
       }
 
@@ -90,5 +94,59 @@ export const meetingsRouter = createTRPCRouter({
         total: total.count,
         totalPages
       };
+    }),
+  create: protectedProcedure
+    .input(meetingInsertSchema)
+    .mutation(async ({ ctx, input }) => {
+      const [createdMeeting] = await db
+        .insert(meetings)
+        .values({
+          ...input,
+          userId: ctx.auth.user.id
+        })
+        .returning({ id: meetings.id });
+      return createdMeeting;
+    }),
+  remove: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const whereClause = and(
+        eq(meetings.id, input.id),
+        eq(meetings.userId, ctx.auth.user.id)
+      );
+
+      const [data] = await db.delete(meetings).where(whereClause).returning();
+
+      if (!data) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Meeting not found'
+        });
+      }
+
+      return data;
+    }),
+  update: protectedProcedure
+    .input(meetingUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const whereClause = and(
+        eq(meetings.id, input.id),
+        eq(meetings.userId, ctx.auth.user.id)
+      );
+
+      const [data] = await db
+        .update(meetings)
+        .set(input)
+        .where(whereClause)
+        .returning();
+
+      if (!data) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Meeting not found'
+        });
+      }
+
+      return data;
     })
 });
