@@ -49,11 +49,6 @@ export function ResponsiveDialog({
             <DrawerDescription>{description}</DrawerDescription>
           </DrawerHeader>
           <div className='p-4'>{children}</div>
-          <DrawerFooter className='pt-2'>
-            <DrawerClose asChild>
-              <Button variant='outline'>Cancel</Button>
-            </DrawerClose>
-          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     );
@@ -61,7 +56,7 @@ export function ResponsiveDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[600px]'>
+      <DialogContent className='max-w-[600px]'>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>

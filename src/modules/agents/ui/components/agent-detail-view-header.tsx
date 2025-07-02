@@ -8,14 +8,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 type AgentDetailViewHeaderProps = {
-  agentId: string;
+  agentId?: string;
   agentName: string;
   onEdit: () => void;
   onDelete: () => void;
 };
 
 export function AgentDetailViewHeader({
-  agentId,
   agentName,
   onEdit,
   onDelete
@@ -31,11 +30,11 @@ export function AgentDetailViewHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
-            <DropdownMenuItem onClick={onEdit}>
+            <DropdownMenuItem onClick={onEdit} className='cursor-pointer'>
               <PencilIcon className='size-4' />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onDelete}>
+            <DropdownMenuItem onClick={onDelete} className='cursor-pointer'>
               <TrashIcon className='size-4' />
               Delete
             </DropdownMenuItem>
