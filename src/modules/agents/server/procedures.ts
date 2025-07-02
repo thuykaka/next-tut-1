@@ -19,7 +19,11 @@ import {
 import { db } from '@/db';
 import { agents } from '@/db/schema';
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
-import { agentInsertSchema, agentSelectSchema } from '@/modules/agents/schema';
+import {
+  agentInsertSchema,
+  agentSelectSchema,
+  agentUpdateSchema
+} from '@/modules/agents/schema';
 
 export const agentsRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -116,5 +120,47 @@ export const agentsRouter = createTRPCRouter({
         })
         .returning({ id: agents.id });
       return createdAgent;
+    }),
+  remove: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const whereClause = and(
+        eq(agents.id, input.id),
+        eq(agents.userId, ctx.auth.user.id)
+      );
+
+      const [data] = await db.delete(agents).where(whereClause).returning();
+
+      if (!data) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Agent not found'
+        });
+      }
+
+      return data;
+    }),
+  update: protectedProcedure
+    .input(agentUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const whereClause = and(
+        eq(agents.id, input.id),
+        eq(agents.userId, ctx.auth.user.id)
+      );
+
+      const [data] = await db
+        .update(agents)
+        .set(input)
+        .where(whereClause)
+        .returning();
+
+      if (!data) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Agent not found'
+        });
+      }
+
+      return data;
     })
 });

@@ -2,9 +2,9 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useTRPC } from '@/trpc/client';
 import { Loader2Icon } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTRPC } from '@/trpc/client';
 import { agentInsertSchema } from '@/modules/agents/schema';
 import type { AgentGetOne } from '@/modules/agents/types';
 import { Button } from '@/components/ui/button';
@@ -34,8 +34,24 @@ export default function AgentForm({
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  const createAgentMutation = useMutation(
+  // Create new agent
+  const { mutate: createAgent, isPending: isCreating } = useMutation(
     trpc.agents.create.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(error.message, {
+          description: 'Please try again.'
+        });
+      }
+    })
+  );
+
+  // Update agent
+  const { mutate: updateAgent, isPending: isUpdating } = useMutation(
+    trpc.agents.update.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
 
@@ -64,13 +80,13 @@ export default function AgentForm({
   });
 
   const isEdit = !!initialValues?.id;
-  const isPending = createAgentMutation.isPending;
+  const isLoading = isCreating || isUpdating;
 
   const onSubmit = (values: z.infer<typeof agentInsertSchema>) => {
     if (isEdit) {
-      console.log('update agent', values);
+      updateAgent({ ...values, id: initialValues.id });
     } else {
-      createAgentMutation.mutate(values);
+      createAgent(values);
     }
   };
 
@@ -122,13 +138,13 @@ export default function AgentForm({
               type='button'
               variant='ghost'
               onClick={onCancel}
-              disabled={isPending}
+              disabled={isLoading}
             >
               Cancel
             </Button>
           )}
-          <Button type='submit' disabled={isPending}>
-            {isPending && <Loader2Icon className='animate-spin' />}
+          <Button type='submit' disabled={isLoading}>
+            {isLoading && <Loader2Icon className='animate-spin' />}
             {isEdit ? 'Update' : 'Create'}
           </Button>
         </div>

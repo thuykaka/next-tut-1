@@ -1,9 +1,18 @@
 'use client';
 
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import {
+  useSuspenseQuery,
+  useQueryClient,
+  useMutation
+} from '@tanstack/react-query';
 import { VideoIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { useTRPC } from '@/trpc/client';
+import { useConfirm } from '@/hooks/use-confirm';
 import { AgentDetailViewHeader } from '@/modules/agents/ui/components/agent-detail-view-header';
+import UpdateAgentDialog from '@/modules/agents/ui/components/update-agent-dialog';
 import { Badge } from '@/components/ui/badge';
 import { ErrorState } from '@/components/error-state';
 import { GeneratedAvatar } from '@/components/generated-avatar';
@@ -14,27 +23,61 @@ type AgentDetailViewProps = {
 };
 
 export function AgentDetailView({ agentId }: AgentDetailViewProps) {
+  const [isUpdateAgentDialogOpen, setIsUpdateAgentDialogOpen] = useState(false);
+
+  const router = useRouter();
+
   const trpc = useTRPC();
 
   const { data } = useSuspenseQuery(
     trpc.agents.getOne.queryOptions({ id: agentId })
   );
 
+  const queryClient = useQueryClient();
+
+  const { mutate: removeAgent } = useMutation(
+    trpc.agents.remove.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
+        router.push('/agents');
+      },
+      onError: (error) => {
+        toast.error(error.message, {
+          description: 'Failed to remove agent, please try again.'
+        });
+      }
+    })
+  );
+
+  const {
+    ConfirmDialog: ConfirmRemoveAgentDialog,
+    confirm: confirmRemoveAgent
+  } = useConfirm({
+    title: 'Are you sure you want to delete this agent?',
+    description: `The following action will delete ${data.meetingCount} associated meetings.`
+  });
+
+  const handleRemoveAgent = async () => {
+    const confirmed = await confirmRemoveAgent();
+    if (!confirmed) return;
+    removeAgent({ id: agentId });
+  };
+
   return (
     <div className='flex flex-col gap-4'>
       <AgentDetailViewHeader
-        agentId={agentId}
         agentName={data.name}
-        onEdit={() => {}}
-        onDelete={() => {}}
+        onEdit={() => setIsUpdateAgentDialogOpen(true)}
+        onDelete={handleRemoveAgent}
       />
+
       <div className='bg-background overflow-hidden rounded-lg border'>
         <div className='col-span-5 flex flex-col gap-y-5 px-4 py-5'>
           <div className='flex items-center gap-x-3'>
             <GeneratedAvatar
               seed={data.name}
               variant='botttsNeutral'
-              className='size-10'
+              className='size-10 rounded-full'
             />
             <h2 className='text-2xl font-medium'>{data.name}</h2>
           </div>
@@ -53,6 +96,14 @@ export function AgentDetailView({ agentId }: AgentDetailViewProps) {
           </div>
         </div>
       </div>
+
+      <ConfirmRemoveAgentDialog />
+
+      <UpdateAgentDialog
+        open={isUpdateAgentDialogOpen}
+        onOpenChange={setIsUpdateAgentDialogOpen}
+        initialValues={data}
+      />
     </div>
   );
 }
