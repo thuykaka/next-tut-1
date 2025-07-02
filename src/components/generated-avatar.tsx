@@ -29,11 +29,9 @@ export function GeneratedAvatar({
   }
 
   return (
-    <Avatar className={cn('h-8 w-8 rounded-lg', className)}>
+    <Avatar className={cn('h-8 w-8 rounded-full', className)}>
       <AvatarImage src={avatar.toDataUri()} alt='Avatar' />
-      <AvatarFallback className='rounded-lg'>
-        {seed.charAt(0).toUpperCase()}
-      </AvatarFallback>
+      <AvatarFallback>{seed.charAt(0).toUpperCase()}</AvatarFallback>
     </Avatar>
   );
 }

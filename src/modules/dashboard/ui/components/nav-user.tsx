@@ -33,7 +33,7 @@ import { GeneratedAvatar } from '@/components/generated-avatar';
 function UserAvatar({ image, name }: { image?: string | null; name: string }) {
   if (image) {
     return (
-      <Avatar className='h-8 w-8 rounded-lg'>
+      <Avatar className='h-8 w-8 rounded-full'>
         <AvatarImage src={image} alt={name} />
       </Avatar>
     );
@@ -44,7 +44,7 @@ function UserAvatar({ image, name }: { image?: string | null; name: string }) {
 
 function UserSkeleton() {
   return (
-    <div className='flex items-center space-x-4'>
+    <div className='border-border/10 flex w-full items-center justify-between space-x-4 overflow-hidden rounded-lg border bg-white/5 p-3 !ring-0 hover:bg-white/10'>
       <Skeleton className='bg-sidebar-accent size-8 rounded-full' />
       <div className='space-y-2'>
         <Skeleton className='bg-sidebar-accent h-3 w-[100px]' />
