@@ -2,35 +2,13 @@
 
 import { format } from 'date-fns';
 import { ColumnDef } from '@tanstack/react-table';
-import {
-  CircleCheckIcon,
-  ClockArrowUpIcon,
-  CornerDownRightIcon,
-  LoaderIcon,
-  CircleXIcon,
-  ClockFadingIcon
-} from 'lucide-react';
+import { CornerDownRightIcon, ClockFadingIcon } from 'lucide-react';
 import { formatDuration } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { MeetingGetMany } from '@/modules/meetings/types';
 import { Badge } from '@/components/ui/badge';
 import { GeneratedAvatar } from '@/components/generated-avatar';
-
-const STATUS_ICON_MAP = {
-  upcoming: ClockArrowUpIcon,
-  active: LoaderIcon,
-  completed: CircleCheckIcon,
-  processing: LoaderIcon,
-  cancelled: CircleXIcon
-};
-
-const STATUS_COLOR_MAP = {
-  upcoming: 'bg-yellow-500/20 text-yellow-800 border-yellow-800/5',
-  active: 'bg-blue-500/20 text-blue-800 border-blue-800/5',
-  completed: 'bg-emerald-500/20 text-emerald-800 border-emerald-800/5',
-  processing: 'bg-gray-300/20 text-gray-800 border-gray-800/5',
-  cancelled: 'bg-rose-500/20 text-rose-800 border-rose-800/5'
-};
+import { STATUS_ICON_MAP, STATUS_COLOR_MAP } from './config';
 
 export const columns: ColumnDef<MeetingGetMany['data'][number]>[] = [
   {
