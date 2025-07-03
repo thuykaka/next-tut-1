@@ -1,7 +1,5 @@
 'use client';
 
-import { useControllableState } from '@radix-ui/react-use-controllable-state';
-import { ChevronsUpDownIcon, PlusIcon } from 'lucide-react';
 import {
   type ComponentProps,
   createContext,
@@ -9,8 +7,11 @@ import {
   useContext,
   useEffect,
   useRef,
-  useState,
+  useState
 } from 'react';
+import { useControllableState } from '@radix-ui/react-use-controllable-state';
+import { ChevronsUpDownIcon, PlusIcon, XIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -19,18 +20,18 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
+  CommandSeparator
 } from '@/components/ui/command';
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
+  PopoverTrigger
 } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
 
 type ComboboxData = {
   label: string;
   value: string;
+  children?: ReactNode;
 };
 
 type ComboboxContextType = {
@@ -56,7 +57,7 @@ const ComboboxContext = createContext<ComboboxContextType>({
   width: 200,
   setWidth: () => {},
   inputValue: '',
-  setInputValue: () => {},
+  setInputValue: () => {}
 });
 
 export type ComboboxProps = ComponentProps<typeof Popover> & {
@@ -83,12 +84,12 @@ export const Combobox = ({
   const [value, onValueChange] = useControllableState({
     defaultProp: defaultValue ?? '',
     prop: controlledValue,
-    onChange: controlledOnValueChange,
+    onChange: controlledOnValueChange
   });
   const [open, onOpenChange] = useControllableState({
     defaultProp: defaultOpen,
     prop: controlledOpen,
-    onChange: controlledOnOpenChange,
+    onChange: controlledOnOpenChange
   });
   const [width, setWidth] = useState(200);
   const [inputValue, setInputValue] = useState('');
@@ -105,7 +106,7 @@ export const Combobox = ({
         width,
         setWidth,
         inputValue,
-        setInputValue,
+        setInputValue
       }}
     >
       <Popover {...props} onOpenChange={onOpenChange} open={open} />
@@ -117,8 +118,9 @@ export type ComboboxTriggerProps = ComponentProps<typeof Button>;
 
 export const ComboboxTrigger = ({
   children,
+  display = 'label',
   ...props
-}: ComboboxTriggerProps) => {
+}: ComboboxTriggerProps & { display?: 'label' | 'children' }) => {
   const { value, data, type, setWidth } = useContext(ComboboxContext);
   const ref = useRef<HTMLButtonElement>(null);
 
@@ -145,14 +147,14 @@ export const ComboboxTrigger = ({
 
   return (
     <PopoverTrigger asChild>
-      <Button variant="outline" {...props} ref={ref}>
+      <Button variant='outline' {...props} ref={ref}>
         {children ?? (
-          <span className="flex w-full items-center justify-between gap-2">
+          <span className='flex w-full items-center justify-between gap-2'>
             {value
-              ? data.find((item) => item.value === value)?.label
+              ? data.find((item) => item.value === value)?.[display]
               : `Select ${type}...`}
             <ChevronsUpDownIcon
-              className="shrink-0 text-muted-foreground"
+              className='text-muted-foreground shrink-0'
               size={16}
             />
           </span>
@@ -206,7 +208,7 @@ export const ComboboxInput = ({
       setInputValue(newValue);
       // Call external onChange if provided
       controlledOnValueChange?.(newValue);
-    },
+    }
   });
 
   return (
@@ -272,7 +274,7 @@ export type ComboboxCreateNewProps = {
 export const ComboboxCreateNew = ({
   onCreateNew,
   children,
-  className,
+  className
 }: ComboboxCreateNewProps) => {
   const { inputValue, type, onValueChange, onOpenChange } =
     useContext(ComboboxContext);
@@ -290,17 +292,17 @@ export const ComboboxCreateNew = ({
   return (
     <button
       className={cn(
-        'relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'aria-selected:bg-accent aria-selected:text-accent-foreground relative flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         className
       )}
       onClick={handleCreateNew}
-      type="button"
+      type='button'
     >
       {children ? (
         children(inputValue)
       ) : (
         <>
-          <PlusIcon className="h-4 w-4 text-muted-foreground" />
+          <PlusIcon className='text-muted-foreground h-4 w-4' />
           <span>
             Create new {type}: "{inputValue}"
           </span>

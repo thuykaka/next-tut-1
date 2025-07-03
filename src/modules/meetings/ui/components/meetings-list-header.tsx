@@ -3,21 +3,26 @@
 import { useState } from 'react';
 import { PlusIcon, XCircleIcon, XIcon } from 'lucide-react';
 import { DEFAULT_PAGE } from '@/config/constants';
-import { AgentsSearch } from '@/modules/agents/ui/components/agents-search';
 import { useMeetingsFilter } from '@/modules/meetings/hooks/use-meetings-filter';
+import MeetingsSearch from '@/modules/meetings/ui/components/meetings-search';
+import MeetingsStatusFilter from '@/modules/meetings/ui/components/meetings-status-filter';
 import NewMeetingDialog from '@/modules/meetings/ui/components/new-meeting-dialog';
 import { Button } from '@/components/ui/button';
+import MeetingsAgentFilter from './meetings-agent-filter';
 
 export default function MeetingsListHeader() {
   const [filter, setFilter] = useMeetingsFilter();
   const [open, setOpen] = useState(false);
 
-  const isAnyFilterModified = !!filter.search;
+  const isAnyFilterModified =
+    !!filter.search || !!filter.agentId || !!filter.status;
 
   const onClearFilters = () => {
     setFilter({
       page: DEFAULT_PAGE,
-      search: ''
+      search: '',
+      status: null,
+      agentId: ''
     });
   };
 
@@ -33,7 +38,23 @@ export default function MeetingsListHeader() {
             </Button>
           </div>
         </div>
-        <div className='flex items-center gap-x-2 p-1'>TODO: Add search</div>
+        <div className='flex flex-wrap items-center gap-2 p-1'>
+          <MeetingsSearch />
+          <MeetingsStatusFilter />
+          <MeetingsAgentFilter />
+
+          {isAnyFilterModified && (
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={onClearFilters}
+              className='h-9'
+            >
+              <XCircleIcon className='size-4' />
+              Clear
+            </Button>
+          )}
+        </div>
       </div>
       <NewMeetingDialog open={open} onOpenChange={setOpen} />
     </>

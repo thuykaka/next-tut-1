@@ -37,7 +37,7 @@ export default function AgentsListHeader() {
           <AgentsSearch />
           {isAnyFilterModified && (
             <Button
-              variant='outline'
+              variant='ghost'
               size='sm'
               onClick={onClearFilters}
               className='h-9'

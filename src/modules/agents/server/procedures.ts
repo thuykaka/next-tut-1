@@ -85,10 +85,12 @@ export const agentsRouter = createTRPCRouter({
           (input?.pageSize ?? DEFAULT_PAGE_SIZE)
       };
 
-      const data = await db
+      // Single query using window function to get both data and total count
+      const result = await db
         .select({
           ...getTableColumns(agents),
-          meetingCount: sql<number>`5`
+          meetingCount: sql<number>`5`,
+          totalCount: sql<number>`COUNT(*) OVER()`.as('total_count')
         })
         .from(agents)
         .where(whereClause)
@@ -96,16 +98,15 @@ export const agentsRouter = createTRPCRouter({
         .limit(pagination.limit)
         .offset(pagination.offset);
 
-      const [total] = await db
-        .select({ count: count() })
-        .from(agents)
-        .where(whereClause);
+      const total = result.length > 0 ? result[0].totalCount : 0;
+      const totalPages = Math.ceil(total / pagination.limit);
 
-      const totalPages = Math.ceil(total.count / pagination.limit);
+      // Remove totalCount from the data objects
+      const data = result.map(({ totalCount, ...item }) => item);
 
       return {
         data,
-        total: total.count,
+        total,
         totalPages
       };
     }),

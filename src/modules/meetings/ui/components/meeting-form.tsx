@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -115,6 +115,23 @@ export default function MeetingForm({
     }
   };
 
+  const agentsOptions = useMemo(() => {
+    return (agents.data?.data ?? []).map((agent) => ({
+      value: agent.id,
+      label: agent.name,
+      children: (
+        <div className='flex items-center gap-x-2'>
+          <GeneratedAvatar
+            seed={agent.name}
+            variant='botttsNeutral'
+            className='size-6 border'
+          />
+          <span>{agent.name}</span>
+        </div>
+      )
+    }));
+  }, [agents.data?.data]);
+
   return (
     <Form {...form}>
       <form className='space-y-4' onSubmit={form.handleSubmit(onSubmit)}>
@@ -141,10 +158,7 @@ export default function MeetingForm({
               <FormControl>
                 <Combobox
                   value={field.value}
-                  data={(agents.data?.data ?? []).map((agent) => ({
-                    value: agent.id,
-                    label: agent.name
-                  }))}
+                  data={agentsOptions}
                   onValueChange={field.onChange}
                   type='agent'
                 >
@@ -154,16 +168,9 @@ export default function MeetingForm({
                     <ComboboxEmpty />
                     <ComboboxList>
                       <ComboboxGroup>
-                        {(agents.data?.data ?? []).map((agent) => (
-                          <ComboboxItem key={agent.id} value={agent.id}>
-                            <div className='item-center flex gap-x-2'>
-                              <GeneratedAvatar
-                                seed={agent.name}
-                                variant='botttsNeutral'
-                                className='size-6 border'
-                              />
-                              <span>{agent.name}</span>
-                            </div>
+                        {agentsOptions.map((agent) => (
+                          <ComboboxItem key={agent.value} value={agent.value}>
+                            {agent.children}
                           </ComboboxItem>
                         ))}
                       </ComboboxGroup>
