@@ -20,7 +20,7 @@ export default function SearchInput({
     <Button
       variant='outline'
       className={cn(
-        'bg-muted/25 text-muted-foreground hover:bg-muted/50 relative h-8 w-40 flex-1 justify-start rounded-md text-sm font-normal shadow-none sm:pr-12 md:flex-none lg:w-56 xl:w-64',
+        'bg-muted/25 text-muted-foreground hover:bg-muted/50 relative h-8 w-64 flex-1 justify-start rounded-md text-sm font-normal shadow-none sm:pr-12 md:flex-none',
         className
       )}
       onClick={() => query.toggle()}

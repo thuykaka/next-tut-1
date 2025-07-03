@@ -11,65 +11,68 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTRPC } from '@/trpc/client';
 import { useConfirm } from '@/hooks/use-confirm';
-import UpdateAgentDialog from '@/modules/agents/ui/components/update-agent-dialog';
+import UpdateMeetingDialog from '@/modules/meetings/ui/components/update-meeting-dialog';
 import { Badge } from '@/components/ui/badge';
 import { DetailViewHeader } from '@/components/detail-view-header';
 import { ErrorState } from '@/components/error-state';
 import { GeneratedAvatar } from '@/components/generated-avatar';
 import { LoadingState } from '@/components/loading-state';
 
-type AgentDetailViewProps = {
-  agentId: string;
+type MeetingDetailViewProps = {
+  meetingId: string;
 };
 
-export function AgentDetailView({ agentId }: AgentDetailViewProps) {
-  const [isUpdateAgentDialogOpen, setIsUpdateAgentDialogOpen] = useState(false);
+export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
+  const [isUpdateMeetingDialogOpen, setIsUpdateMeetingDialogOpen] =
+    useState(false);
 
   const router = useRouter();
 
   const trpc = useTRPC();
 
   const { data } = useSuspenseQuery(
-    trpc.agents.getOne.queryOptions({ id: agentId })
+    trpc.meetings.getOne.queryOptions({ id: meetingId })
   );
 
   const queryClient = useQueryClient();
 
-  const { mutate: removeAgent } = useMutation(
-    trpc.agents.remove.mutationOptions({
+  const { mutate: removeMeeting } = useMutation(
+    trpc.meetings.remove.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
-        router.push('/agents');
+        await queryClient.invalidateQueries(
+          trpc.meetings.getMany.queryOptions()
+        );
+        router.push('/meetings');
       },
       onError: (error) => {
         toast.error(error.message, {
-          description: 'Failed to remove agent, please try again.'
+          description: 'Failed to remove meeting, please try again.'
         });
       }
     })
   );
 
   const {
-    ConfirmDialog: ConfirmRemoveAgentDialog,
-    confirm: confirmRemoveAgent
+    ConfirmDialog: ConfirmRemoveMeetingDialog,
+    confirm: confirmRemoveMeeting
   } = useConfirm({
-    title: 'Are you sure you want to delete this agent?',
-    description: `The following action will delete ${data.meetingCount} associated meetings.`
+    title: 'Are you sure you want to delete this meeting?',
+    description: `The following action will delete the meeting and all associated data.`
   });
 
-  const handleRemoveAgent = async () => {
-    const confirmed = await confirmRemoveAgent();
+  const handleRemoveMeeting = async () => {
+    const confirmed = await confirmRemoveMeeting();
     if (!confirmed) return;
-    removeAgent({ id: agentId });
+    removeMeeting({ id: meetingId });
   };
 
   return (
     <div className='flex flex-col gap-4'>
       <DetailViewHeader
-        root={{ title: 'Agents', link: '/agents' }}
-        paths={[{ title: data.name, link: `/agents/${agentId}` }]}
-        onEdit={() => setIsUpdateAgentDialogOpen(true)}
-        onDelete={handleRemoveAgent}
+        root={{ title: 'Meetings', link: '/meetings' }}
+        paths={[{ title: data.name, link: `/meetings/${meetingId}` }]}
+        onEdit={() => setIsUpdateMeetingDialogOpen(true)}
+        onDelete={handleRemoveMeeting}
       />
 
       <div className='bg-background overflow-hidden rounded-lg border'>
@@ -87,32 +90,30 @@ export function AgentDetailView({ agentId }: AgentDetailViewProps) {
             className='flex items-center gap-x-2 [&>svg]:size-4'
           >
             <VideoIcon className='text-blue-700' />
-            {data.meetingCount}{' '}
-            {data.meetingCount === 1 ? 'meeting' : 'meetings'}
           </Badge>
 
           <div className='flex flex-col gap-y-2'>
             <p className='text-lg font-medium'>Instructions</p>
-            <p className='text-neutral-800'>{data.instructions}</p>
+            <p className='text-neutral-800'></p>
           </div>
         </div>
       </div>
 
-      <ConfirmRemoveAgentDialog />
+      <ConfirmRemoveMeetingDialog />
 
-      <UpdateAgentDialog
-        open={isUpdateAgentDialogOpen}
-        onOpenChange={setIsUpdateAgentDialogOpen}
+      <UpdateMeetingDialog
+        open={isUpdateMeetingDialogOpen}
+        onOpenChange={setIsUpdateMeetingDialogOpen}
         initialValues={data}
       />
     </div>
   );
 }
 
-export function AgentDetailViewLoading() {
-  return <LoadingState title='Loading Detail Agent' />;
+export function MeetingDetailViewLoading() {
+  return <LoadingState title='Loading Detail Meeting' />;
 }
 
-export function AgentDetailViewError() {
-  return <ErrorState title='Failed to load detail agent' />;
+export function MeetingDetailViewError() {
+  return <ErrorState title='Failed to load detail meeting' />;
 }

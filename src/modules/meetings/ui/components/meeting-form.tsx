@@ -162,7 +162,7 @@ export default function MeetingForm({
                   onValueChange={field.onChange}
                   type='agent'
                 >
-                  <ComboboxTrigger className='w-full' />
+                  <ComboboxTrigger className='w-full' display='children' />
                   <ComboboxContent shouldFilter={false}>
                     <ComboboxInput onValueChange={setAgentSearch} />
                     <ComboboxEmpty />
