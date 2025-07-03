@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   useSuspenseQuery,
   useQueryClient,
@@ -63,11 +63,16 @@ export function AgentDetailView({ agentId }: AgentDetailViewProps) {
     removeAgent({ id: agentId });
   };
 
+  const breadcrumbPaths = useMemo(
+    () => [{ title: data.name, link: `/agents/${agentId}` }],
+    [data.name, agentId]
+  );
+
   return (
     <div className='flex flex-col gap-4'>
       <DetailViewHeader
         root={{ title: 'Agents', link: '/agents' }}
-        paths={[{ title: data.name, link: `/agents/${agentId}` }]}
+        paths={breadcrumbPaths}
         onEdit={() => setIsUpdateAgentDialogOpen(true)}
         onDelete={handleRemoveAgent}
       />

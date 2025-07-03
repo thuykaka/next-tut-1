@@ -47,6 +47,8 @@
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
+    "@stream-io/node-sdk": "^0.4.25",
+    "@stream-io/video-react-sdk": "^1.18.0",
     "@tanstack/react-query": "^5.81.5",
     "@tanstack/react-table": "^8.21.3",
     "@trpc/client": "^11.4.3",
@@ -102,5 +104,6 @@
     "tsx": "^4.20.3",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@9.15.0"
 }

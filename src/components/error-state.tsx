@@ -14,7 +14,7 @@ export function ErrorState({
     <div className='flex flex-col items-center justify-center gap-4'>
       <Alert
         variant='destructive'
-        className='flex min-h-[400px] flex-col items-center justify-center border-none'
+        className='flex flex-col items-center justify-center border-none md:min-h-[300px] md:min-w-[600px]'
       >
         <AlertCircleIcon className='mb-1' />
         <AlertTitle className='text-lg font-medium'>{title}</AlertTitle>

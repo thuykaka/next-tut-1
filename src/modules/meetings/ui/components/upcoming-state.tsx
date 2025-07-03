@@ -32,7 +32,7 @@ export default function UpcomingState({
           Cancel Meeting
         </Button>
         <Button asChild className='w-full lg:w-auto'>
-          <Link href={`/calls/${meetingId}`}>
+          <Link href={`/call/${meetingId}`}>
             <VideoIcon className='size-4' />
             Start Meeting
           </Link>

@@ -13,6 +13,8 @@
     "prettier-plugin-tailwindcss"
   ],
   "importOrder": [
+    "server-only",
+    "client-only",
     "^path$",
     "^vite$",
     "^@vitejs/(.*)$",

@@ -1,15 +1,6 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import {
-  eq,
-  getTableColumns,
-  ilike,
-  and,
-  desc,
-  count,
-  or,
-  sql
-} from 'drizzle-orm';
+import { eq, getTableColumns, ilike, and, desc, sql } from 'drizzle-orm';
 import {
   MAX_PAGE_SIZE,
   DEFAULT_PAGE_SIZE,
@@ -19,6 +10,8 @@ import {
 import { db } from '@/db';
 import { agents, meetings } from '@/db/schema';
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
+import { generateAvatar } from '@/lib/avatar';
+import { streamVideoServerClient } from '@/lib/stream-video-server';
 import {
   meetingInsertSchema,
   meetingSelectSchema,
@@ -129,7 +122,58 @@ export const meetingsRouter = createTRPCRouter({
           ...input,
           userId: ctx.auth.user.id
         })
-        .returning({ id: meetings.id });
+        .returning({ id: meetings.id, name: meetings.name });
+
+      // 1. Tạo video call room với Stream Video
+      const call = streamVideoServerClient.video.call(
+        'default', // Loại call: 'default', 'audio_room', 'livestream', 'development'
+        createdMeeting.id // Sử dụng meeting ID làm call ID
+      );
+
+      // 2. Cấu hình video call với transcription và recording tự động
+      await call.create({
+        data: {
+          created_by_id: ctx.auth.user.id,
+          custom: {
+            meetingId: createdMeeting.id,
+            meetingName: createdMeeting.name
+          },
+          settings_override: {
+            transcription: {
+              language: 'en',
+              mode: 'auto-on',
+              closed_caption_mode: 'auto-on'
+            },
+            recording: {
+              mode: 'auto-on',
+              quality: '1080p'
+            }
+          }
+        }
+      });
+
+      const [agent] = await db
+        .select()
+        .from(agents)
+        .where(eq(agents.id, input.agentId));
+
+      if (!agent) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Agent not found'
+        });
+      }
+
+      // 3. Thêm agent vào Stream Video users để có thể join call
+      await streamVideoServerClient.upsertUsers([
+        {
+          id: agent.id,
+          name: agent.name,
+          role: 'user',
+          image: generateAvatar({ seed: agent.name, variant: 'botttsNeutral' })
+        }
+      ]);
+
       return createdMeeting;
     }),
   remove: protectedProcedure
@@ -173,5 +217,30 @@ export const meetingsRouter = createTRPCRouter({
       }
 
       return data;
-    })
+    }),
+  generateToken: protectedProcedure.mutation(async ({ ctx }) => {
+    // Thêm user vào Stream Video users
+    await streamVideoServerClient.upsertUsers([
+      {
+        id: ctx.auth.user.id,
+        name: ctx.auth.user.name,
+        role: 'admin',
+        image:
+          ctx.auth.user.image ??
+          generateAvatar({ seed: ctx.auth.user.name, variant: 'initials' })
+      }
+    ]);
+
+    const expiredAt = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hour
+    const issuedAt = Math.floor(Date.now() / 1000) - 60;
+
+    // Tạo token cho user để join video call
+    const token = streamVideoServerClient.generateUserToken({
+      user_id: ctx.auth.user.id,
+      exp: expiredAt,
+      iat: issuedAt
+    });
+
+    return token;
+  })
 });
