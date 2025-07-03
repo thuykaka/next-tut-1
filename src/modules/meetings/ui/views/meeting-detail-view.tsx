@@ -1,25 +1,59 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   useSuspenseQuery,
   useQueryClient,
   useMutation
 } from '@tanstack/react-query';
-import { VideoIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTRPC } from '@/trpc/client';
 import { useConfirm } from '@/hooks/use-confirm';
+import { MeetingStatus } from '@/modules/meetings/types';
+import ActiveState from '@/modules/meetings/ui/components/active-state';
+import CancelledState from '@/modules/meetings/ui/components/cancelled-state';
+import ProcessingState from '@/modules/meetings/ui/components/processing-state';
+import UpcomingState from '@/modules/meetings/ui/components/upcoming-state';
 import UpdateMeetingDialog from '@/modules/meetings/ui/components/update-meeting-dialog';
-import { Badge } from '@/components/ui/badge';
 import { DetailViewHeader } from '@/components/detail-view-header';
 import { ErrorState } from '@/components/error-state';
-import { GeneratedAvatar } from '@/components/generated-avatar';
 import { LoadingState } from '@/components/loading-state';
 
 type MeetingDetailViewProps = {
   meetingId: string;
+};
+
+const createStatusComponent = (
+  status: MeetingStatus,
+  meetingId: string,
+  onCancel?: () => void,
+  isCancelling?: boolean
+) => {
+  switch (status) {
+    case MeetingStatus.UPCOMING:
+      return (
+        <UpcomingState
+          meetingId={meetingId}
+          onCancel={onCancel}
+          isCancelling={isCancelling}
+        />
+      );
+    case MeetingStatus.ACTIVE:
+      return <ActiveState meetingId={meetingId} />;
+    case MeetingStatus.COMPLETED:
+      return (
+        <div className='flex flex-col items-center justify-center'>
+          <p>Meeting completed</p>
+        </div>
+      );
+    case MeetingStatus.PROCESSING:
+      return <ProcessingState />;
+    case MeetingStatus.CANCELLED:
+      return <CancelledState />;
+    default:
+      return null;
+  }
 };
 
 export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
@@ -27,14 +61,12 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
     useState(false);
 
   const router = useRouter();
-
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const { data } = useSuspenseQuery(
     trpc.meetings.getOne.queryOptions({ id: meetingId })
   );
-
-  const queryClient = useQueryClient();
 
   const { mutate: removeMeeting } = useMutation(
     trpc.meetings.remove.mutationOptions({
@@ -60,42 +92,55 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
     description: `The following action will delete the meeting and all associated data.`
   });
 
-  const handleRemoveMeeting = async () => {
+  const handleEdit = useCallback(() => {
+    setIsUpdateMeetingDialogOpen(true);
+  }, []);
+
+  const handleRemoveMeeting = useCallback(async () => {
     const confirmed = await confirmRemoveMeeting();
     if (!confirmed) return;
     removeMeeting({ id: meetingId });
-  };
+  }, [confirmRemoveMeeting, removeMeeting, meetingId]);
+
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const handleCancelMeeting = useCallback(async () => {
+    setIsCancelling(true);
+    try {
+      toast.success('Meeting cancelled successfully');
+    } catch (error) {
+      toast.error('Failed to cancel meeting');
+    } finally {
+      setIsCancelling(false);
+    }
+  }, [meetingId]);
+
+  const statusComponent = useMemo(() => {
+    return createStatusComponent(
+      data.status as MeetingStatus,
+      meetingId,
+      handleCancelMeeting,
+      isCancelling
+    );
+  }, [data.status, meetingId, handleCancelMeeting, isCancelling]);
+
+  const breadcrumbPaths = useMemo(
+    () => [{ title: data.name, link: `/meetings/${meetingId}` }],
+    [data.name, meetingId]
+  );
 
   return (
     <div className='flex flex-col gap-4'>
       <DetailViewHeader
         root={{ title: 'Meetings', link: '/meetings' }}
-        paths={[{ title: data.name, link: `/meetings/${meetingId}` }]}
-        onEdit={() => setIsUpdateMeetingDialogOpen(true)}
+        paths={breadcrumbPaths}
+        onEdit={handleEdit}
         onDelete={handleRemoveMeeting}
       />
 
       <div className='bg-background overflow-hidden rounded-lg border'>
         <div className='col-span-5 flex flex-col gap-y-5 px-4 py-5'>
-          <div className='flex items-center gap-x-3'>
-            <GeneratedAvatar
-              seed={data.name}
-              variant='botttsNeutral'
-              className='size-10 rounded-full'
-            />
-            <h2 className='text-2xl font-medium'>{data.name}</h2>
-          </div>
-          <Badge
-            variant='outline'
-            className='flex items-center gap-x-2 [&>svg]:size-4'
-          >
-            <VideoIcon className='text-blue-700' />
-          </Badge>
-
-          <div className='flex flex-col gap-y-2'>
-            <p className='text-lg font-medium'>Instructions</p>
-            <p className='text-neutral-800'></p>
-          </div>
+          {statusComponent}
         </div>
       </div>
 
