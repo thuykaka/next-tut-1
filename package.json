@@ -15,6 +15,11 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
+  "lint-staged": {
+    "**/*.{js,jsx,tsx,ts,css,less,scss,sass}": [
+      "prettier --write --no-error-on-unmatched-pattern"
+    ]
+  },
   "dependencies": {
     "@dicebear/collection": "^9.2.3",
     "@dicebear/core": "^9.2.3",
