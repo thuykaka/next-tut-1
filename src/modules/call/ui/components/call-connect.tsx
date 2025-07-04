@@ -65,7 +65,6 @@ export default function CallConnect({
 
     return () => {
       if (_call.state.callingState !== CallingState.LEFT) {
-        console.log('1. leave call');
         _call.leave();
         _call.endCall();
         setCall(undefined);
