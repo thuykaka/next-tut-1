@@ -11,7 +11,7 @@ export function LoadingState({
   ...spinnerProps
 }: Props) {
   return (
-    <div className='flex min-h-[400px] flex-col items-center justify-center gap-4'>
+    <div className='flex flex-col items-center justify-center gap-4 md:min-h-[300px] md:min-w-[600px]'>
       <Spinner {...spinnerProps} className='text-primary' />
       <div className='flex flex-col gap-y-2 text-center'>
         {title && <h6 className='text-lg font-medium'>{title}</h6>}
