@@ -22,20 +22,35 @@ export default function DashboardTrial() {
           <RocketIcon className='size-4' />
           <p className='text-sm font-medium'>Free Trial</p>
         </div>
-        <div className='flex flex-col gap-y-2'>
-          <p className='text-xs'>
-            {freeUsage.agentCount}/{MAX_FREE_AGENTS} Agents
-          </p>
-          <Progress value={(freeUsage.agentCount / MAX_FREE_AGENTS) * 100} />
-        </div>
-        <div className='flex flex-col gap-y-2'>
-          <p className='text-xs'>
-            {freeUsage.meetingCount}/{MAX_FREE_MEETINGS} Meetings
-          </p>
-          <Progress
-            value={(freeUsage.meetingCount / MAX_FREE_MEETINGS) * 100}
-          />
-        </div>
+        {isPending ? (
+          <>
+            <div className='flex flex-col gap-y-2'>
+              <Skeleton className='bg-muted-foreground h-2 w-full' />
+            </div>
+            <div className='flex flex-col gap-y-2'>
+              <Skeleton className='bg-muted-foreground h-2 w-full' />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className='flex flex-col gap-y-2'>
+              <p className='text-xs'>
+                {freeUsage.agentCount}/{MAX_FREE_AGENTS} Agents
+              </p>
+              <Progress
+                value={(freeUsage.agentCount / MAX_FREE_AGENTS) * 100}
+              />
+            </div>
+            <div className='flex flex-col gap-y-2'>
+              <p className='text-xs'>
+                {freeUsage.meetingCount}/{MAX_FREE_MEETINGS} Meetings
+              </p>
+              <Progress
+                value={(freeUsage.meetingCount / MAX_FREE_MEETINGS) * 100}
+              />
+            </div>
+          </>
+        )}
       </div>
       <Button
         asChild

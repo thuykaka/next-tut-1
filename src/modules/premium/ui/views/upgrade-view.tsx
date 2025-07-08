@@ -18,8 +18,6 @@ export function UpgradeView() {
     trpc.premium.getCurrentSubscription.queryOptions()
   );
 
-  console.log(products);
-
   return (
     <div className='flex flex-1 flex-col gap-y-10 px-4 py-4 md:px-8'>
       <div className='mt-4 flex flex-1 flex-col items-center gap-y-10'>
@@ -47,21 +45,23 @@ export function UpgradeView() {
                     products: [product.id]
                   });
 
+            const firstPrice = product.prices[0];
+
             return (
               <PricingCard
                 key={product.id}
                 variant={
-                  product.metadata.variant === 'highlighted'
+                  product.metadata?.variant === 'highlighted'
                     ? 'selected'
                     : 'default'
                 }
                 title={product.name}
                 price={
-                  product.prices[0].amountType === 'fixed'
-                    ? product.prices[0].priceAmount / 100
+                  firstPrice?.amountType === 'fixed'
+                    ? firstPrice.priceAmount / 100
                     : 0
                 }
-                priceSuffix={`/${product.prices[0].recurringInterval}`}
+                priceSuffix={`/${firstPrice?.recurringInterval}`}
                 description={product.description}
                 features={product.benefits.map(
                   (benefit) => benefit.description
