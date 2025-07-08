@@ -1,6 +1,15 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { eq, getTableColumns, ilike, and, desc, sql } from 'drizzle-orm';
+import {
+  eq,
+  getTableColumns,
+  ilike,
+  and,
+  desc,
+  sql,
+  inArray
+} from 'drizzle-orm';
+import JSONL from 'jsonl-parse-stringify';
 import {
   MAX_PAGE_SIZE,
   DEFAULT_PAGE_SIZE,
@@ -8,16 +17,17 @@ import {
   DEFAULT_PAGE
 } from '@/config/constants';
 import { db } from '@/db';
-import { agents, meetings } from '@/db/schema';
+import { agents, meetings, user } from '@/db/schema';
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import { generateAvatar } from '@/lib/avatar';
+import { streamChatServerClient } from '@/lib/stream-chat-server';
 import { streamVideoServerClient } from '@/lib/stream-video-server';
 import {
   meetingInsertSchema,
   meetingSelectSchema,
   meetingUpdateSchema
 } from '@/modules/meetings/schema';
-import { MeetingStatus } from '@/modules/meetings/types';
+import { MeetingStatus, StreamTranscriptItem } from '@/modules/meetings/types';
 
 export const meetingsRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -269,5 +279,106 @@ export const meetingsRouter = createTRPCRouter({
         message: 'Error when generate token'
       });
     }
-  })
+  }),
+  generateChatToken: protectedProcedure.mutation(async ({ ctx }) => {
+    const token = streamChatServerClient.createToken(ctx.auth.user.id);
+    await streamChatServerClient.upsertUser({
+      id: ctx.auth.user.id,
+      role: 'admin'
+    });
+
+    return token;
+  }),
+  getTranscript: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const whereClause = and(
+        eq(meetings.id, input.id),
+        eq(meetings.userId, ctx.auth.user.id)
+      );
+
+      const [data] = await db
+        .select({
+          transcript: meetings.transcriptUrl
+        })
+        .from(meetings)
+        .where(whereClause);
+
+      if (!data) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Meeting not found'
+        });
+      }
+
+      if (!data.transcript) {
+        return [];
+      }
+
+      let transcriptJson: StreamTranscriptItem[] = [];
+
+      try {
+        const transcript = await fetch(data.transcript);
+        const transcriptText = await transcript.text();
+        transcriptJson = JSONL.parse<StreamTranscriptItem>(transcriptText);
+      } catch (er) {
+        console.error('Error when parse transcript', er);
+      }
+
+      const speakerIds = [
+        ...new Set(transcriptJson.map((item) => item.speaker_id))
+      ];
+
+      const userSpeakers = await db
+        .select()
+        .from(user)
+        .where(inArray(user.id, speakerIds));
+
+      const userSpeakersWithMapImage = userSpeakers.map((user) => ({
+        ...user,
+        image:
+          user.image ?? generateAvatar({ seed: user.name, variant: 'initials' })
+      }));
+
+      const agentSpeakers = await db
+        .select()
+        .from(agents)
+        .where(inArray(agents.id, speakerIds));
+
+      const agentSpeakersWithMapImage = agentSpeakers.map((agent) => ({
+        ...agent,
+        image: generateAvatar({ seed: agent.name, variant: 'botttsNeutral' })
+      }));
+
+      const speakers = [
+        ...userSpeakersWithMapImage,
+        ...agentSpeakersWithMapImage
+      ];
+
+      const transcriptWithSpeaker = transcriptJson.map((item) => {
+        const speaker = speakers.find(
+          (speaker) => speaker.id === item.speaker_id
+        );
+
+        if (!speaker) {
+          return {
+            ...item,
+            user: {
+              name: 'Unknown',
+              image: generateAvatar({ seed: 'Unknown', variant: 'initials' })
+            }
+          };
+        }
+
+        return {
+          ...item,
+          user: {
+            name: speaker.name,
+            image: speaker.image
+          }
+        };
+      });
+
+      return transcriptWithSpeaker;
+    })
 });

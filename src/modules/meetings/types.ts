@@ -15,6 +15,7 @@ export enum MeetingStatus {
 }
 
 export type StreamTranscriptItem = {
+  from?: 'user' | 'assistant';
   speaker_id: string;
   type: string;
   text: string;

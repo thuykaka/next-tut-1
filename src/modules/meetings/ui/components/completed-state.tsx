@@ -10,6 +10,8 @@ import Link from 'next/link';
 import Markdown from 'react-markdown';
 import { formatDuration } from '@/lib/format';
 import { MeetingGetOne } from '@/modules/meetings/types';
+import { ChatProvider } from '@/modules/meetings/ui/components/chat-provider';
+import Transcript from '@/modules/meetings/ui/components/transcript';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,7 +24,7 @@ type CompletedStateProps = {
 export default function CompletedState({ data }: CompletedStateProps) {
   return (
     <div className='flex flex-col gap-y-4'>
-      <Tabs defaultValue='summary'>
+      <Tabs defaultValue='chat'>
         <div className='bg-white px-3'>
           <ScrollArea>
             <TabsList className='bg-background h-13 justify-start rounded-none p-0'>
@@ -137,7 +139,9 @@ export default function CompletedState({ data }: CompletedStateProps) {
             </Markdown>
           </div>
         </TabsContent>
-        <TabsContent value='transcript'></TabsContent>
+        <TabsContent value='transcript'>
+          <Transcript meetingId={data.id} />
+        </TabsContent>
         <TabsContent value='recording'>
           <div className='bg-white p-3'>
             <video
@@ -146,6 +150,9 @@ export default function CompletedState({ data }: CompletedStateProps) {
               className='w-full rounded-lg'
             />
           </div>
+        </TabsContent>
+        <TabsContent value='chat'>
+          <ChatProvider meetingId={data.id} meetingName={data.name} />
         </TabsContent>
       </Tabs>
     </div>
