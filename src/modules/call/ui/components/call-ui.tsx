@@ -50,13 +50,8 @@ export default function CallUI({ meetingName }: CallUIProps) {
 
   const handleLeaveCall = useCallback(() => {
     if (!call) return;
-    try {
-      call.leave();
-    } catch (error) {
-      console.error('Failed to leave call:', error);
-    } finally {
-      setCurrentView('ended');
-    }
+    console.log('leave call');
+    setCurrentView('ended');
   }, [call]);
 
   const callViewComponent = useMemo(
