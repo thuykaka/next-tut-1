@@ -17,7 +17,7 @@ export default function ActiveState({ meetingId }: ActiveStateProps) {
       />
       <div className='mb-10 flex w-full flex-col-reverse items-center gap-4 lg:flex-row lg:justify-center'>
         <Button asChild className='w-full lg:w-auto'>
-          <Link href={`/calls/${meetingId}`}>
+          <Link href={`/call/${meetingId}`}>
             <VideoIcon className='size-4' />
             Join Meeting
           </Link>
