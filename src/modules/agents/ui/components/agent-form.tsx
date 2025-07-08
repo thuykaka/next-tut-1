@@ -19,6 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { GeneratedAvatar } from '@/components/generated-avatar';
+import { useRouter } from 'next/navigation';
 
 type AgentFormProps = {
   onSuccess?: () => void;
@@ -31,6 +32,7 @@ export default function AgentForm({
   onCancel,
   initialValues
 }: AgentFormProps) {
+  const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -39,12 +41,17 @@ export default function AgentForm({
     trpc.agents.create.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message, {
-          description: 'Please try again.'
-        });
+        toast.error(error.message);
+
+        if (error.data?.code === 'FORBIDDEN') {
+          router.push('/upgrade');
+        }
       }
     })
   );
@@ -64,9 +71,7 @@ export default function AgentForm({
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message, {
-          description: 'Please try again.'
-        });
+        toast.error(error.message);
       }
     })
   );

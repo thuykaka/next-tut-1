@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2Icon } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTRPC } from '@/trpc/client';
 import { meetingInsertSchema } from '@/modules/meetings/schema';
@@ -43,6 +44,7 @@ export default function MeetingForm({
   onCancel,
   initialValues
 }: MeetingFormProps) {
+  const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -62,12 +64,17 @@ export default function MeetingForm({
         await queryClient.invalidateQueries(
           trpc.meetings.getMany.queryOptions()
         );
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
         onSuccess?.(data.id);
       },
       onError: (error) => {
-        toast.error(error.message, {
-          description: 'Please try again.'
-        });
+        toast.error(error.message);
+
+        if (error.data?.code === 'FORBIDDEN') {
+          router.push('/upgrade');
+        }
       }
     })
   );
@@ -89,9 +96,7 @@ export default function MeetingForm({
         onSuccess?.();
       },
       onError: (error) => {
-        toast.error(error.message, {
-          description: 'Please try again.'
-        });
+        toast.error(error.message);
       }
     })
   );

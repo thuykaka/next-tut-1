@@ -1,9 +1,24 @@
-import { db } from '@/db';
-import * as schema from '@/db/schema';
+import { polar, checkout, portal } from '@polar-sh/better-auth';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { db } from '@/db';
+import * as schema from '@/db/schema';
+import { polarServerClient } from '@/lib/polar-server';
 
 export const auth = betterAuth({
+  plugins: [
+    polar({
+      client: polarServerClient,
+      createCustomerOnSignUp: true,
+      use: [
+        checkout({
+          authenticatedUsersOnly: true,
+          successUrl: '/upgrade'
+        }),
+        portal()
+      ]
+    })
+  ],
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,

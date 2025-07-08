@@ -39,12 +39,13 @@ export function AgentDetailView({ agentId }: AgentDetailViewProps) {
     trpc.agents.remove.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
         router.push('/agents');
       },
       onError: (error) => {
-        toast.error(error.message, {
-          description: 'Failed to remove agent, please try again.'
-        });
+        toast.error(error.message);
       }
     })
   );

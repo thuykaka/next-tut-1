@@ -8,6 +8,7 @@ import {
   SidebarHeader,
   SidebarRail
 } from '@/components/ui/sidebar';
+import DashboardTrial from './dashboard-trial';
 import { NavMain } from './nav-main';
 import { NavPlans } from './nav-plan';
 import { NavUser } from './nav-user';
@@ -26,6 +27,7 @@ export function DashboardSidebar({
         <NavPlans />
       </SidebarContent>
       <SidebarFooter>
+        <DashboardTrial />
         <NavUser />
       </SidebarFooter>
       <SidebarRail />
