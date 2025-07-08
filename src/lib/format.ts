@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import humanizeDuration from 'humanize-duration';
 
 export const formatDuration = (seconds: number) => {
