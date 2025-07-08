@@ -10,9 +10,10 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTRPC } from '@/trpc/client';
 import { useConfirm } from '@/hooks/use-confirm';
-import { MeetingStatus } from '@/modules/meetings/types';
+import { MeetingGetOne, MeetingStatus } from '@/modules/meetings/types';
 import ActiveState from '@/modules/meetings/ui/components/active-state';
 import CancelledState from '@/modules/meetings/ui/components/cancelled-state';
+import CompletedState from '@/modules/meetings/ui/components/completed-state';
 import ProcessingState from '@/modules/meetings/ui/components/processing-state';
 import UpcomingState from '@/modules/meetings/ui/components/upcoming-state';
 import UpdateMeetingDialog from '@/modules/meetings/ui/components/update-meeting-dialog';
@@ -25,12 +26,12 @@ type MeetingDetailViewProps = {
 };
 
 const createStatusComponent = (
-  status: MeetingStatus,
+  data: MeetingGetOne,
   meetingId: string,
   onCancel?: () => void,
   isCancelling?: boolean
 ) => {
-  switch (status) {
+  switch (data.status) {
     case MeetingStatus.UPCOMING:
       return (
         <UpcomingState
@@ -42,11 +43,7 @@ const createStatusComponent = (
     case MeetingStatus.ACTIVE:
       return <ActiveState meetingId={meetingId} />;
     case MeetingStatus.COMPLETED:
-      return (
-        <div className='flex flex-col items-center justify-center'>
-          <p>Meeting completed</p>
-        </div>
-      );
+      return <CompletedState data={data} />;
     case MeetingStatus.PROCESSING:
       return <ProcessingState />;
     case MeetingStatus.CANCELLED:
@@ -117,12 +114,12 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
 
   const statusComponent = useMemo(() => {
     return createStatusComponent(
-      data.status as MeetingStatus,
+      data,
       meetingId,
       handleCancelMeeting,
       isCancelling
     );
-  }, [data.status, meetingId, handleCancelMeeting, isCancelling]);
+  }, [data, meetingId, handleCancelMeeting, isCancelling]);
 
   const breadcrumbPaths = useMemo(
     () => [{ title: data.name, link: `/meetings/${meetingId}` }],
