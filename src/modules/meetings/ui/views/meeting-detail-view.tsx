@@ -71,12 +71,13 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
         await queryClient.invalidateQueries(
           trpc.meetings.getMany.queryOptions()
         );
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
         router.push('/meetings');
       },
       onError: (error) => {
-        toast.error(error.message, {
-          description: 'Failed to remove meeting, please try again.'
-        });
+        toast.error(error.message);
       }
     })
   );

@@ -71,13 +71,13 @@ export const navMainConfig: NavItem[] = [
 export const navPlansConfig: NavItem[] = [
   {
     title: 'Upgrade Plan',
-    url: '/plans',
+    url: '/upgrade',
     icon: Sparkles,
     shortcut: ['u', 'u']
   },
   {
     title: 'Payment History',
-    url: '/payment-history',
+    url: '#',
     icon: CreditCard,
     shortcut: ['p', 'p']
   }

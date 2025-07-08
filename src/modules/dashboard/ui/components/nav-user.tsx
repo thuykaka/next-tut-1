@@ -73,7 +73,9 @@ export function NavUser() {
     });
   };
 
-  console.log('render nav user');
+  const onOpenBilling = () => {
+    authClient.customer.portal();
+  };
 
   return (
     <SidebarMenu>
@@ -135,7 +137,7 @@ export function NavUser() {
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={onOpenBilling}>
                 <CreditCard />
                 Billing
               </DropdownMenuItem>
