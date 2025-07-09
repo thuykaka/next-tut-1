@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
     fetches: {
       fullUrl: true
     }
+  },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/meetings',
+        permanent: true
+      }
+    ];
   }
 };
 

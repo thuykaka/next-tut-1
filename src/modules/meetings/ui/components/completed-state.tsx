@@ -24,7 +24,7 @@ type CompletedStateProps = {
 export default function CompletedState({ data }: CompletedStateProps) {
   return (
     <div className='flex flex-col gap-y-4'>
-      <Tabs defaultValue='chat'>
+      <Tabs defaultValue='summary'>
         <div className='bg-white px-3'>
           <ScrollArea>
             <TabsList className='bg-background h-13 justify-start rounded-none p-0'>
