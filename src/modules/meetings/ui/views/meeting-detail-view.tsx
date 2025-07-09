@@ -25,21 +25,10 @@ type MeetingDetailViewProps = {
   meetingId: string;
 };
 
-const createStatusComponent = (
-  data: MeetingGetOne,
-  meetingId: string,
-  onCancel?: () => void,
-  isCancelling?: boolean
-) => {
+const createStatusComponent = (data: MeetingGetOne, meetingId: string) => {
   switch (data.status) {
     case MeetingStatus.UPCOMING:
-      return (
-        <UpcomingState
-          meetingId={meetingId}
-          onCancel={onCancel}
-          isCancelling={isCancelling}
-        />
-      );
+      return <UpcomingState meetingId={meetingId} />;
     case MeetingStatus.ACTIVE:
       return <ActiveState meetingId={meetingId} />;
     case MeetingStatus.COMPLETED:
@@ -100,27 +89,9 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
     removeMeeting({ id: meetingId });
   }, [confirmRemoveMeeting, removeMeeting, meetingId]);
 
-  const [isCancelling, setIsCancelling] = useState(false);
-
-  const handleCancelMeeting = useCallback(async () => {
-    setIsCancelling(true);
-    try {
-      toast.success('Meeting cancelled successfully');
-    } catch (error) {
-      toast.error('Failed to cancel meeting');
-    } finally {
-      setIsCancelling(false);
-    }
-  }, [meetingId]);
-
   const statusComponent = useMemo(() => {
-    return createStatusComponent(
-      data,
-      meetingId,
-      handleCancelMeeting,
-      isCancelling
-    );
-  }, [data, meetingId, handleCancelMeeting, isCancelling]);
+    return createStatusComponent(data, meetingId);
+  }, [data, meetingId]);
 
   const breadcrumbPaths = useMemo(
     () => [{ title: data.name, link: `/meetings/${meetingId}` }],

@@ -1,66 +1,94 @@
 'use client';
 
 import { useMemo } from 'react';
-import { navMainConfig, navPlansConfig } from '@/config/nav';
+import { useQuery } from '@tanstack/react-query';
 import {
   KBarAnimator,
   KBarPortal,
   KBarPositioner,
   KBarProvider,
-  KBarSearch
+  KBarSearch,
+  useRegisterActions,
+  useKBar
 } from 'kbar';
 import { useRouter } from 'next/navigation';
+import { useTRPC } from '@/trpc/client';
 import RenderResults from './render-result';
 
 export default function KBar({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-
-  // These action are for the navigation
-  const actions = useMemo(() => {
-    const navigateTo = (url: string) => {
-      router.push(url);
-    };
-
-    return [...navMainConfig, ...navPlansConfig].flatMap((navItem) => {
-      // Only include base action if the navItem has a real URL and is not just a container
-      const baseAction =
-        navItem.url !== '#'
-          ? {
-              id: `${navItem.title.toLowerCase()}Action`,
-              name: navItem.title,
-              shortcut: navItem.shortcut,
-              keywords: navItem.title.toLowerCase(),
-              section: 'Navigation',
-              subtitle: `Go to ${navItem.title}`,
-              perform: () => navigateTo(navItem.url)
-            }
-          : null;
-
-      // Map child items into actions
-      const childActions =
-        navItem.items?.map((childItem) => ({
-          id: `${childItem.title.toLowerCase()}Action`,
-          name: childItem.title,
-          shortcut: childItem.shortcut,
-          keywords: childItem.title.toLowerCase(),
-          section: navItem.title,
-          subtitle: `Go to ${childItem.title}`,
-          perform: () => navigateTo(childItem.url)
-        })) ?? [];
-
-      // Return only valid actions (ignoring null base actions for containers)
-      return baseAction ? [baseAction, ...childActions] : childActions;
-    });
-  }, [router]);
-
   return (
-    <KBarProvider actions={actions} >
+    <KBarProvider>
       <KBarComponent>{children}</KBarComponent>
     </KBarProvider>
   );
 }
 
 const KBarComponent = ({ children }: { children: React.ReactNode }) => {
+  const { queryValue } = useKBar((state) => ({
+    queryValue: state.searchQuery
+  }));
+
+  const router = useRouter();
+  const trpc = useTRPC();
+
+  const { data: agents } = useQuery(
+    trpc.agents.getMany.queryOptions({ search: queryValue, pageSize: 100 })
+  );
+
+  const { data: meetings } = useQuery(
+    trpc.meetings.getMany.queryOptions({ search: queryValue, pageSize: 100 })
+  );
+
+  const actions = useMemo(() => {
+    const navigateTo = (url: string) => {
+      router.push(url);
+    };
+
+    // Add some default actions
+    const defaultActions = [
+      {
+        id: 'agents-section',
+        name: 'Go to Agents',
+        keywords: 'agents list',
+        section: 'Navigation',
+        subtitle: 'View all agents',
+        perform: () => navigateTo('/agents')
+      },
+      {
+        id: 'meetings-section',
+        name: 'Go to Meetings',
+        keywords: 'meetings list',
+        section: 'Navigation',
+        subtitle: 'View all meetings',
+        perform: () => navigateTo('/meetings')
+      }
+    ];
+
+    const agentActions = (agents?.data ?? []).map((item) => ({
+      id: `agent-${item.id}`,
+      name: item.name,
+      keywords: item.name.toLowerCase(),
+      section: 'Agents',
+      subtitle: 'Go to Agent',
+      perform: () => navigateTo(`/agents/${item.id}`)
+    }));
+
+    const meetingActions = (meetings?.data ?? []).map((item) => ({
+      id: `meeting-${item.id}`,
+      name: item.name,
+      keywords: item.name.toLowerCase(),
+      section: 'Meetings',
+      subtitle: 'Go to Meeting',
+      perform: () => navigateTo(`/meetings/${item.id}`)
+    }));
+
+    const allActions = [...agentActions, ...meetingActions, ...defaultActions];
+
+    return allActions;
+  }, [router, agents, meetings]);
+
+  useRegisterActions(actions, [actions]);
+
   return (
     <>
       <KBarPortal>
@@ -69,7 +97,7 @@ const KBarComponent = ({ children }: { children: React.ReactNode }) => {
             <div className='bg-card border-border sticky top-0 z-10 border-b'>
               <KBarSearch className='bg-card w-full border-none px-6 py-4 text-base outline-hidden focus:ring-0 focus:ring-offset-0 focus:outline-hidden' />
             </div>
-            <div className='max-h-[320px]'>
+            <div className='max-h-[400px]'>
               <RenderResults />
             </div>
           </KBarAnimator>

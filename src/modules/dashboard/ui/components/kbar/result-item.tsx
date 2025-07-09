@@ -16,6 +16,8 @@ const ResultItem = React.forwardRef(
     },
     ref: React.Ref<HTMLDivElement>
   ) => {
+    if (!action) return null;
+
     const ancestors = React.useMemo(() => {
       if (!currentRootActionId) return action.ancestors;
       const index = action.ancestors.findIndex(
