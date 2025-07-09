@@ -28,6 +28,7 @@
     "@icons-pack/react-simple-icons": "^13.4.0",
     "@inngest/agent-kit": "^0.9.0",
     "@neondatabase/serverless": "^1.0.1",
+    "@opentelemetry/winston-transport": "^0.13.0",
     "@polar-sh/better-auth": "^1.0.4",
     "@polar-sh/sdk": "^0.34.3",
     "@radix-ui/react-accordion": "^1.2.11",
